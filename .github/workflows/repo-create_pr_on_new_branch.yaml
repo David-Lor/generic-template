@@ -18,10 +18,18 @@ jobs:
           ref = ref.replace("refs/heads/", "")
           print(f"::set-output name=name::{ref}")
           print("branch name:", ref)
+      - name: Choose GitHub Token
+        id: github-token
+        shell: python
+        run: |-
+          ghtoken = "${{ secrets.GITHUB_TOKEN }}"
+          pat = "${{ secrets.PAT }}"
+          final = pat if pat else ghtoken
+          print(f"::set-output name=token::{final}")
       - name: Create pull request
         uses: thomaseizinger/create-pull-request@master
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.github-token.outputs.token }}
           head: ${{ github.ref }}
           base: main
           title: ${{ steps.branch-name.outputs.name }}
